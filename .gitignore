@@ -46,6 +46,9 @@
 # PyTorch auto run file
 *.pyc
 
+# Cmake build folder
+build
+
 # TensorRT weights file
 *.weights
 
