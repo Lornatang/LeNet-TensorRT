@@ -30,3 +30,26 @@
 *.exe
 *.out
 *.app
+
+
+# MAC temp fiel
+.DS_Store
+
+# IDE file
+.idea
+.vscode
+
+# PyTorch weighst file
+*.pth
+*.pt
+
+# PyTorch auto run file
+*.pyc
+
+# TensorRT weights file
+*.weights
+
+# Data folder
+data
+
+
