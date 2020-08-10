@@ -51,7 +51,7 @@ build
 cmake-build-debug
 
 # TensorRT weights file
-*.weights
+*.wts
 
 # Data folder
 data

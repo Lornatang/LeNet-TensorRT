@@ -22,7 +22,7 @@ def main():
     model.load_state_dict(torch.load("model_best.pth")["state_dict"])
     model.eval()
 
-    f = open("lenet.weights", 'w')
+    f = open("lenet.wts", 'w')
     f.write("{}\n".format(len(model.state_dict().keys())))
     for k, v in model.state_dict().items():
         vr = v.reshape(-1).cpu().numpy()
