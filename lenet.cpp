@@ -217,8 +217,8 @@ void printHelpInfo()
     printMessage(2);
     std::cerr << "Invalid arguments!" << std::endl;
     std::cout << "Usage: " << std::endl;
-    std::cout << "  ./lenet --engine   // Generate TensorRT inference model." << std::endl;
-    std::cout << "  ./lenet --image ../examples/0.jpg   // Reasoning on the picture." << std::endl;
+    std::cout << "  ./lenet --engine  // Generate TensorRT inference model." << std::endl;
+    std::cout << "  ./lenet --image ../examples/0.jpg  // Reasoning on the picture." << std::endl;
 }
 
 int main(int argc, char** argv) {
