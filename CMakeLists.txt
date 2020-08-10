@@ -19,7 +19,7 @@ cmake_minimum_required(VERSION 3.10.2)
 
 # The name of the project
 set(PROJECT_NAME lenet)
-project(${PROJECT_NAME})
+project(${PROJECT_NAME} VERSION 0.1)
 
 # Compile using C++17 standard
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++17")
@@ -58,3 +58,13 @@ target_link_libraries(${PROJECT_NAME}
     nvinfer
     cudart
 )
+
+target_include_directories(lenet PRIVATE  ${CMAKE_SOURCE_DIR}/include)
+set_target_properties(lenet PROPERTIES PUBLIC_HEADER ${CMAKE_SOURCE_DIR}/include/common.h)
+
+
+# install configure
+install(TARGETS ${PROJECT_NAME}
+        RUNTIME DESTINATION bin  # 可执行文件安装路径
+        PUBLIC_HEADER DESTINATION include/tensorrt/lenet  # 头文件安装路径
+        )
