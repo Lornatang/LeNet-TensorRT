@@ -42,7 +42,8 @@ static Logger gLogger;
 // [type] [size] <data x size in hex>
 std::map<std::string, Weights> loadWeights(const std::string file)
 {
-    std::cout << "Loading weights: " << file << std::endl;
+    printMessage(0);
+    std::cout <<  "Loading weights from `" << file  << "`."<< std::endl;
     std::map<std::string, Weights> weightMap;
 
     // Open weights file
@@ -165,6 +166,8 @@ void serializeEngine(unsigned int maxBatchSize, IHostMemory **modelStream) {
     IBuilder* builder = createInferBuilder(gLogger);
 
     // Create model to populate the network, then set the outputs and create an engine
+    printMessage(0);
+    std::cout << "Currently creating an inference engine." << std::endl;
     ICudaEngine* engine = createEngine(maxBatchSize, builder, DataType::kFLOAT);
     assert(engine != nullptr);
 
@@ -209,12 +212,18 @@ void inference(IExecutionContext& context, float *input, float *output, int batc
     CHECK(cudaFree(buffers[outputIndex]));
 }
 
-int main(int argc, char** argv)
+void printHelpInfo()
 {
-    if (argc < 2 && argv[1] != "--engine" && argv[1] != "--image") {
-        std::cerr << "Usage:" << std::endl;
-        std::cerr << "\t./lenet --engine   // Generate TensorRT inference model." << std::endl;
-        std::cerr << "\t./lenet --image ../examples/0.jpg   // Reasoning on the picture." << std::endl;
+    printMessage(2);
+    std::cerr << "Invalid arguments!" << std::endl;
+    std::cout << "Usage: " << std::endl;
+    std::cout << "  ./lenet --engine   // Generate TensorRT inference model." << std::endl;
+    std::cout << "  ./lenet --image ../examples/0.jpg   // Reasoning on the picture." << std::endl;
+}
+
+int main(int argc, char** argv) {
+    if (argc < 2) {
+        printHelpInfo();
         return -1;
     }
 
@@ -231,16 +240,23 @@ int main(int argc, char** argv)
         assert(modelStream != nullptr);
 
         std::ofstream engine("/opt/tensorrt_models/torch/lenet/lenet.engine");
-        if (!engine)
-        {
-            std::cerr << "could not open plan output file" << std::endl;
+        if (!engine) {
+            printMessage(2);
+            std::cerr << "Could not open plan output file" << std::endl;
+            printMessage(0);
+            std::cout << "Please refer to the documentation how to generate an inference engine." << std::endl;
             return -1;
         }
         engine.write(reinterpret_cast<const char*>(modelStream->data()), modelStream->size());
-        std::cout << "Model engine has created!" << std::endl;
+
+        printMessage(0);
+        std::cout << "The inference engine is saved to `/opt/tensorrt_models/torch/lenet/lenet.engine`!" << std::endl;
+
         modelStream->destroy();
         return 1;
     } else if (std::string(argv[1]) == "--image") {
+        printMessage(0);
+        std::cout << "Read from`/opt/tensorrt_models/torch/lenet/lenet.engine` inference engine." << std::endl;
         std::ifstream file("/opt/tensorrt_models/torch/lenet/lenet.engine", std::ios::binary);
         if (file.good()) {
             file.seekg(0, file.end);
@@ -250,16 +266,30 @@ int main(int argc, char** argv)
             assert(trtModelStream);
             file.read(trtModelStream, size);
             file.close();
+            
+            printMessage(0);
+            std::cout << "Read image from `" << argv[2] << "`!" << std::endl;
 
             cv::Mat image = cv::imread(argv[2], cv::IMREAD_GRAYSCALE);
+
             if (image.empty()) {
+                printMessage(2);
                 std::cerr << "Open image error!" << std::endl;
                 return -2;
             }
+            printMessage(0);
+            std::cout << "Read image successful! " << std::endl;
+
+            printMessage(0);
+            std::cout << "Adjust image size to 32 * 32." << std::endl;
             cv::resize(image, image, cv::Size(INPUT_H,INPUT_W));
+            printMessage(0);
+            std::cout << "Adjust image size successful." << std::endl;
 
             // Print ASCII representation of digit image
-            std::cout << "\nInput:\n" << std::endl;
+            std::cout << std::endl;
+            printMessage(0);
+            std::cout << "Input:\n" << std::endl;
             for (int i = 0; i < INPUT_H * INPUT_W; i++) {
                 data[i] = image.data[i];
                 std::cout << (" .:-=+*#%@"[ image.data[i] / 26]) << (((i + 1) % INPUT_W) ? "" : "\n");
@@ -290,14 +320,18 @@ int main(int argc, char** argv)
     runtime->destroy();
 
     // Print histogram of the output distribution
-    std::cout << "\nPrediction:\n\n";
+    std::cout << std::endl;
+    printMessage(0);
+    std::cout << "Inference......" << std::endl;;
     unsigned int category;
     for (unsigned int i = 0; i < NUMBER_CLASSES; i++) {
         if(prob[i] > 0.5) 
             category = i;
     }
-
-    std::cout << "Category: " << "`" <<category <<  "`." << " Probability: "<< prob[category] * 100 << "%." << std::endl;
+    printMessage(0);
+    std::cout << "Result: "<< std::endl;
+    std::cout << "\tCategory: " << "`" <<category <<  "`." << std::endl;
+    std::cout << "\tProbability: "<< prob[category] * 100 << "%." << std::endl;
 
     return 0;
 }
