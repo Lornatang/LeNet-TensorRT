@@ -359,7 +359,7 @@ def validate(val_loader, model, criterion, args):
 def save_checkpoint(state, is_best, filename="checkpoint.pth"):
     torch.save(state, filename)
     if is_best:
-        shutil.copyfile(filename, "model_best.pth")
+        torch.save(state["state_dict"], "/opt/tensorrt_models/torch/lenet/lenet.pth")
 
 
 class AverageMeter(object):

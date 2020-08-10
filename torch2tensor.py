@@ -19,10 +19,10 @@ from lenet_pytorch import LeNet
 
 def main():
     model = LeNet().to("cuda:0")
-    model.load_state_dict(torch.load("model_best.pth")["state_dict"])
+    model.load_state_dict(torch.load("/opt/tensorrt_models/torch/lenet/lenet.pth"))
     model.eval()
 
-    f = open("lenet.wts", 'w')
+    f = open("/opt/tensorrt_models/torch/lenet/lenet.wts", 'w')
     f.write("{}\n".format(len(model.state_dict().keys())))
     for k, v in model.state_dict().items():
         vr = v.reshape(-1).cpu().numpy()

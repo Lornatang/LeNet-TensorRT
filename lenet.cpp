@@ -88,7 +88,7 @@ ICudaEngine *createEngine(unsigned int maxBatchSize, IBuilder* builder, DataType
     ITensor *data = model->addInput(INPUT_NAME, datatype, Dims3{1, INPUT_H, INPUT_W});
     assert(data);
  
-    std::map<std::string, Weights> weights = loadWeights("../lenet.wts");
+    std::map<std::string, Weights> weights = loadWeights("/opt/tensorrt_models/torch/lenet/lenet.wts");
 
     // Add convolution layer with 6 outputs and a 5x5 filter.
     IConvolutionLayer *conv1 = model->addConvolution(*data, 6, DimsHW{5, 5}, weights["conv1.weight"], weights["conv1.bias"]);
@@ -230,7 +230,7 @@ int main(int argc, char** argv)
         serializeEngine(1, &modelStream);
         assert(modelStream != nullptr);
 
-        std::ofstream engine("lenet.engine");
+        std::ofstream engine("/opt/tensorrt_models/torch/lenet/lenet.engine");
         if (!engine)
         {
             std::cerr << "could not open plan output file" << std::endl;
@@ -241,7 +241,7 @@ int main(int argc, char** argv)
         modelStream->destroy();
         return 1;
     } else if (std::string(argv[1]) == "--image") {
-        std::ifstream file("lenet.engine", std::ios::binary);
+        std::ifstream file("/opt/tensorrt_models/torch/lenet/lenet.engine", std::ios::binary);
         if (file.good()) {
             file.seekg(0, file.end);
             size = file.tellg();
