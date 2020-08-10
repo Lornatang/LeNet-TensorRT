@@ -1,23 +1,60 @@
-cmake_minimum_required(VERSION 3.0)
+ #
+# Copyright (c) 2020, Lorna Authors. All rights reserved.
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+#
 
-project(lenet)
+# Check the cmake version number of the system
+cmake_minimum_required(VERSION 3.10.2)
 
-add_definitions(-std=c++11)
+# The name of the project
+set(PROJECT_NAME lenet)
+project(${PROJECT_NAME})
 
-set(TARGET_NAME "lenet")
+# Compile using C++17 standard
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++17")
+set( CMAKE_CXX_FLAGS "-std=c++17" )
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -O2 -pthread")
+set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE}")
+message(STATUS "C++17 support has been enabled by default.")
 
-option(CUDA_USE_STATIC_CUDA_RUNTIME OFF)
-set(CMAKE_CXX_STANDARD 11)
-set(CMAKE_BUILD_TYPE Debug)
+# Use OpenCV
+find_package(OpenCV REQUIRED)
+message(STATUS "OpenCV library status:")
+message(STATUS "    version: ${OpenCV_VERSION}")
+message(STATUS "    include path: ${OpenCV_INCLUDE_DIRS}")
 
-include_directories(${PROJECT_SOURCE_DIR}/include)
-include_directories(/usr/local/cuda/include)
+# Use CUDA
+find_package(CUDA REQUIRED)
+message(STATUS "CUDA library status:")
+message(STATUS "    version: ${CUDA_VERSION}")
+message(STATUS "    include path: ${CUDA_INCLUDE_DIRS}")
+
+# Add all headers location to your include paths
+include_directories(${PROJECT_SOURCE_DIR}/include)  
+include_directories(${OpenCV_INCLUDE_DIRS})  
+include_directories(${CUDA_INCLUDE_DIRS})  
+
+# Add all librarys location to your include paths
 link_directories(/usr/local/cuda/lib64)
 
-FILE(GLOB SRC_FILES ${PROJECT_SOURCE_DIR}/lenet.cpp)
+FILE(GLOB SOURCES ${PROJECT_SOURCE_DIR}/lenet.cpp)
 
-add_executable(${TARGET_NAME} ${SRC_FILES})
-target_link_libraries(${TARGET_NAME} nvinfer)
-target_link_libraries(${TARGET_NAME} cudart)
+add_executable(${PROJECT_NAME} ${SOURCES})
 
-add_definitions(-O2 -pthread)
+# Link your application with all libraries
+target_link_libraries(${PROJECT_NAME} 
+    ${OpenCV_LIBS} 
+    nvinfer
+    cudart
+)

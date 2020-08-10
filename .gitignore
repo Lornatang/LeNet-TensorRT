@@ -48,6 +48,7 @@
 
 # Cmake build folder
 build
+cmake-build-debug
 
 # TensorRT weights file
 *.weights
