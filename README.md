@@ -80,52 +80,53 @@ python train.py data
 3. Verify that the sample ran successfully. If the sample runs successfully you should see output similar to the following; ASCII rendering of the input image with digit 0:
     ```bash
     # ./lenet --image ../examples/0.jpg 
-    [INFO(22:16:23)]: Read from`/opt/tensorrt_models/torch/lenet/lenet.engine` inference engine.
-    [INFO(22:16:23)]: Read image from `../examples/0.jpg`!
-    [INFO(22:16:23)]: Read image successful! 
-    [INFO(22:16:23)]: Adjust image size to 32 * 32.
-    [INFO(22:16:23)]: Adjust image size successful.
+    [INFO(23:5:22)]: Read from`/opt/tensorrt_models/torch/lenet/lenet.engine` inference engine.
+    [INFO(23:5:22)]: Read image from `../examples/0.jpg`!
+    [INFO(23:5:22)]: Read image successful! 
+    [INFO(23:5:22)]: Adjust image size to 32 * 32.
+    [INFO(23:5:22)]: Adjust image size successful.
     
-    [INFO(22:16:23)]: Input:
+    [INFO(23:5:22)]: Input:
     
-    @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
-    @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
-    @@@@@@%-------------------#@@@@@
-    @@@@@@#                   *@@@@@
-    @@@@@@#                   *@@@@@
-    @@@@@@#                   *@@@@@
-    @@@@@@#          .**.     *@@@@@
-    @@@@@@#          #@@*     *@@@@@
-    @@@@@@#         =@@%#.    *@@@@@
-    @@@@@@#        -@@@=%#    *@@@@@
-    @@@@@@#       =@@%@+#%.   *@@@@@
-    @@@@@@#      .#@#=#--%.   *@@@@@
-    @@@@@@#      =@%-.: :@-   *@@@@@
-    @@@@@@#     :##=.   :@*   *@@@@@
-    @@@@@@#     +%-     :@*   *@@@@@
-    @@@@@@#    .%#      :@*   *@@@@@
-    @@@@@@#    =@=      :@*   *@@@@@
-    @@@@@@#    +@.      =%-   *@@@@@
-    @@@@@@#    +@      :%*    *@@@@@
-    @@@@@@#    +#     :#+     *@@@@@
-    @@@@@@#    +%.   -%#.     *@@@@@
-    @@@@@@#    +@+.-#@#-      *@@@@@
-    @@@@@@#    =@@%@@#-       *@@@@@
-    @@@@@@#    :#@@%*.        *@@@@@
-    @@@@@@#     :*#=          *@@@@@
-    @@@@@@#                   *@@@@@
-    @@@@@@#                   *@@@@@
-    @@@@@@#                   *@@@@@
-    @@@@@@%=+++++++++++++++++=%@@@@@
-    @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
-    @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
-    @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+                                    
+                                    
+                                    
+                                    
+                      ::::          
+                     -+**+:         
+                    :#@@@@*         
+                   :%@@@@@#:        
+                  -%@@@#++#%=       
+                :+%@@%@%+=#@*.      
+                -#@@**%#=-=%*.      
+               -*@@#--+=: :##:      
+              :*%@#= .:.  .#%=.     
+             :+%%*=:      .#@*.     
+             +%#=.        .#@*:     
+            :%%=.         .#@*:     
+            *@*:          .#@*:     
+           :%@+:          .#@+.     
+           -@#-.         .=%#-      
+           -@*:         .=##=.      
+           -@*:        .=##-.       
+           -@*.      .-+##-         
+           -@#-    ..=#%#-          
+           -@@*-::=*#%@#=.          
+           -@@@%#%@@@%+:            
+           .#@@@@@@#*:.             
+            :+****+-.               
+             .::::.                 
+                                    
+                                    
+                                    
+                                    
     [WARNING]: Current optimization profile is: 0. Please ensure there are no enqueued operations pending in this context prior to switching profiles
     
-    [INFO(22:16:24)]: Inference......
-    [INFO(22:16:24)]: Result: 
+    [INFO(23:5:23)]: Inference......
+    [INFO(23:5:23)]: Result: 
         Category: `0`.
         Probability: 100%.
+
     ```
   
 4. Install into the system directory(optional)
