@@ -31,7 +31,6 @@
 *.out
 *.app
 
-
 # MAC temp fiel
 .DS_Store
 
@@ -54,6 +53,6 @@ cmake-build-debug
 *.wts
 
 # Data folder
-data
+data/MNIST
 
 
