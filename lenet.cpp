@@ -77,8 +77,7 @@ std::map<std::string, Weights> loadWeights(const std::string file) {
 
 // Custom create LeNet neural network engine
 ICudaEngine *createEngine(unsigned int maxBatchSize, IBuilder *builder, DataType datatype, IBuilderConfig *config) {
-  // batch size equal 1
-  INetworkDefinition *model = builder->createNetwork();
+  INetworkDefinition *model = builder->createNetworkV2(0);
 
   // Create input tensor of shape { 1, 1, 32, 32 } with name INPUT_BLOB_NAME
   ITensor *data = model->addInput(INPUT_NAME, datatype, Dims3{1, INPUT_H, INPUT_W});
