@@ -43,7 +43,7 @@ parser.add_argument("data", metavar="DIR", default="data",
                     help="path to dataset")
 parser.add_argument("-j", "--workers", default=4, type=int, metavar="N",
                     help="number of data loading workers (default: 4)")
-parser.add_argument("--epochs", default=90, type=int, metavar="N",
+parser.add_argument("--epochs", default=3, type=int, metavar="N",
                     help="number of total epochs to run")
 parser.add_argument("--start-epoch", default=0, type=int, metavar="N",
                     help="manual epoch number (useful on restarts)")
@@ -77,8 +77,6 @@ parser.add_argument("--seed", default=None, type=int,
                     help="seed for initializing training. ")
 parser.add_argument("--gpu", default=0, type=int,
                     help="GPU id to use.")
-parser.add_argument("--image-size", default=28, type=int,
-                    help="image size")
 parser.add_argument("--multiprocessing-distributed", action="store_true",
                     help="Use multi-processing distributed training to launch "
                          "N processes per node, which has N GPUs. This is the "
@@ -203,14 +201,12 @@ def main_worker(gpu, ngpus_per_node, args):
     train_dataset = datasets.MNIST(
         args.data, train=True,
         transform=transforms.Compose([
-            transforms.Resize(args.image_size),
             transforms.ToTensor(),
             normalize])
     )
     val_dataset = datasets.MNIST(
         args.data, train=False,
         transform=transforms.Compose([
-            transforms.Resize(args.image_size),
             transforms.ToTensor(),
             normalize])
     )

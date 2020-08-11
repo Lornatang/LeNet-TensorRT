@@ -304,7 +304,7 @@ int main(int argc, char **argv) {
   std::cout << "Resize image size to 28 * 28." << std::endl;
   cv::resize(raw_image, image, cv::Size(INPUT_H, INPUT_W));
 
-  for (int i = 0; i < INPUT_H * INPUT_W; i++) data[i] = image.data[i];
+  for (int i = 0; i < INPUT_C * INPUT_H * INPUT_W; i++) data[i] = image.data[i];
 
   // Run inference
   float prob[NUMBER_CLASSES];
