@@ -37,6 +37,7 @@
 # IDE file
 .idea
 .vscode
+.clang-format
 
 # PyTorch weighst file
 *.pth
