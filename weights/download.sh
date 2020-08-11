@@ -21,5 +21,5 @@ wget -P /opt/tensorrt_models/torch/lenet/ https://github.com/Lornatang/LeNet-Ten
 echo "Downloading LeNet(TensorRT) weights ..."
 wget -P /opt/tensorrt_models/torch/lenet/ https://github.com/Lornatang/LeNet-TensorRT/releases/download/v0.1/lenet.wts
 echo "Downloading LeNet(TensorRT) engine ..."
-wget -P /opt/tensorrt_models/torch/lenet/ https://github.com/Lornatang/LeNet-TensorRT/releases/download/v0.1/lenet.engine
+wget -P /opt/tensorrt_models/torch/lenet/ https://github.com/Lornatang/LeNet-TensorRT/releases/download/v0.2/lenet.engine
 echo "Done downloading."
