@@ -47,9 +47,9 @@ parser.add_argument("--epochs", default=90, type=int, metavar="N",
                     help="number of total epochs to run")
 parser.add_argument("--start-epoch", default=0, type=int, metavar="N",
                     help="manual epoch number (useful on restarts)")
-parser.add_argument("-b", "--batch-size", default=128, type=int,
+parser.add_argument("-b", "--batch-size", default=256, type=int,
                     metavar="N",
-                    help="mini-batch size (default: 128), this is the total "
+                    help="mini-batch size (default: 256), this is the total "
                          "batch size of all GPUs on the current node when "
                          "using Data Parallel or Distributed Data Parallel")
 parser.add_argument("--lr", "--learning-rate", default=0.1, type=float,
@@ -77,7 +77,7 @@ parser.add_argument("--seed", default=None, type=int,
                     help="seed for initializing training. ")
 parser.add_argument("--gpu", default=0, type=int,
                     help="GPU id to use.")
-parser.add_argument("--image_size", default=32, type=int,
+parser.add_argument("--image-size", default=28, type=int,
                     help="image size")
 parser.add_argument("--multiprocessing-distributed", action="store_true",
                     help="Use multi-processing distributed training to launch "
@@ -198,20 +198,19 @@ def main_worker(gpu, ngpus_per_node, args):
     cudnn.benchmark = True
 
     # Data loading code
-    normalize = transforms.Normalize(mean=[0.5, ],
-                                     std=[0.5, ])
+    normalize = transforms.Normalize(mean=[0.5, ], std=[0.5, ])
 
     train_dataset = datasets.MNIST(
         args.data, train=True,
         transform=transforms.Compose([
-            transforms.Resize(32),
+            transforms.Resize(args.image_size),
             transforms.ToTensor(),
             normalize])
     )
     val_dataset = datasets.MNIST(
         args.data, train=False,
         transform=transforms.Compose([
-            transforms.Resize(32),
+            transforms.Resize(args.image_size),
             transforms.ToTensor(),
             normalize])
     )
