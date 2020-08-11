@@ -65,6 +65,7 @@ python train.py data
     ```bash
     cd <TensorRT root directory>
     mkdir build
+    cd build
     cmake ..
     make
     ```
