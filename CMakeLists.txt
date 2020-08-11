@@ -62,9 +62,8 @@ target_link_libraries(${PROJECT_NAME}
 target_include_directories(lenet PRIVATE  ${CMAKE_SOURCE_DIR}/include)
 set_target_properties(lenet PROPERTIES PUBLIC_HEADER ${CMAKE_SOURCE_DIR}/include/common.h)
 
-
 # install configure
 install(TARGETS ${PROJECT_NAME}
-        RUNTIME DESTINATION bin  # 可执行文件安装路径
-        PUBLIC_HEADER DESTINATION include/tensorrt/lenet  # 头文件安装路径
+        RUNTIME DESTINATION bin 
+        PUBLIC_HEADER DESTINATION include/tensorrt/torch/lenet
         )
