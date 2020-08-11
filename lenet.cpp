@@ -41,10 +41,10 @@ static Logger gLogger;
 // Load weights from files shared with TensorRT samples.
 // TensorRT weight files have a simple space delimited format:
 // [type] [size] <data x size in hex>
-std::map<std::string, Weights> loadWeights(const std::string file) {
+std::map<std::string, Weights> load_weights(const std::string file) {
   printMessage(0);
   std::cout << "Loading weights from `" << file << "`." << std::endl;
-  std::map<std::string, Weights> weightMap;
+  std::map<std::string, Weights> weights;
 
   // Open weights file
   std::ifstream input(file);
@@ -70,14 +70,14 @@ std::map<std::string, Weights> loadWeights(const std::string file) {
 
     wt.values = val;
     wt.count = size;
-    weightMap[name] = wt;
+    weights[name] = wt;
   }
 
-  return weightMap;
+  return weights;
 }
 
 // Custom create LeNet neural network engine
-ICudaEngine *createEngine(unsigned int maxBatchSize, IBuilder *builder, DataType datatype, IBuilderConfig *config) {
+ICudaEngine *create_engine(unsigned int maxBatchSize, IBuilder *builder, DataType datatype, IBuilderConfig *config) {
   INetworkDefinition *model = builder->createNetworkV2(0);
 
   // Create input tensor of shape { 1, 1, 32, 32 } with name INPUT_BLOB_NAME
@@ -169,7 +169,7 @@ void serializeEngine(unsigned int maxBatchSize, IHostMemory **modelStream) {
   // engine
   printMessage(0);
   std::cout << "Currently creating an inference engine." << std::endl;
-  ICudaEngine *engine = createEngine(maxBatchSize, builder, DataType::kFLOAT, config);
+  ICudaEngine *engine = create_engine(maxBatchSize, builder, DataType::kFLOAT, config);
   assert(engine != nullptr);
 
   // Serialize the engine
