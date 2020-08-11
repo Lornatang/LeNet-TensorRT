@@ -81,7 +81,7 @@ std::map<std::string, Weights> loadWeights(const std::string file)
 }
 
 // Custom create LeNet neural network engine
-ICudaEngine *createEngine(unsigned int maxBatchSize, IBuilder* builder, DataType datatype) {
+ICudaEngine *createEngine(unsigned int maxBatchSize, IBuilder* builder, DataType datatype, IBuilderConfig *config) {
     // batch size equal 1
     INetworkDefinition* model = builder->createNetwork();
 
@@ -146,8 +146,9 @@ ICudaEngine *createEngine(unsigned int maxBatchSize, IBuilder* builder, DataType
 
     // Build engine
     builder->setMaxBatchSize(maxBatchSize);
-    builder->setMaxWorkspaceSize(16_MiB);
-    ICudaEngine* engine = builder->buildCudaEngine(*model);
+    config->setMaxWorkspaceSize(16_MiB);
+    config->setFlag(BuilderFlag::kFP16);
+    ICudaEngine* engine = builder->buildEngineWithConfig(*model, *config);
 
     // Don't need the model any more
     model->destroy();
@@ -163,12 +164,13 @@ ICudaEngine *createEngine(unsigned int maxBatchSize, IBuilder* builder, DataType
 
 void serializeEngine(unsigned int maxBatchSize, IHostMemory **modelStream) {
     // Create builder
-    IBuilder* builder = createInferBuilder(gLogger);
+    IBuilder *builder = createInferBuilder(gLogger);
+    IBuilderConfig *config = builder->createBuilderConfig();
 
     // Create model to populate the network, then set the outputs and create an engine
     printMessage(0);
     std::cout << "Currently creating an inference engine." << std::endl;
-    ICudaEngine* engine = createEngine(maxBatchSize, builder, DataType::kFLOAT);
+    ICudaEngine* engine = createEngine(maxBatchSize, builder, DataType::kFLOAT, config);
     assert(engine != nullptr);
 
     // Serialize the engine
