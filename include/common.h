@@ -47,7 +47,7 @@ class Logger : public nvinfer1::ILogger {
 
   Logger(Severity severity) : reportableSeverity(severity) {}
 
-  void log(Severity severity, const char *msg) override {
+  void log(Severity severity, const char* msg) override {
     // suppress messages with severity enum value greater than the reportable
     if (severity > reportableSeverity) return;
 
@@ -74,9 +74,13 @@ class Logger : public nvinfer1::ILogger {
   Severity reportableSeverity{Severity::kWARNING};
 };
 
+static bool PairCompare(const std::pair<float, int>& lhs, const std::pair<float, int>& rhs) {
+  return lhs.first > rhs.first;
+}
+
 void printMessage(unsigned int LEVEL) {
   std::time_t now = time(0);
-  std::tm *ltm = localtime(&now);
+  std::tm* ltm = localtime(&now);
   switch (LEVEL) {
     case 0:
       std::cout << "[INFO(" << ltm->tm_hour << ":" << ltm->tm_min << ":" << ltm->tm_sec << ")]: ";

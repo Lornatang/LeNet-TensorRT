@@ -26,8 +26,9 @@
 #include "opencv2/opencv.hpp"
 
 // stuff we know about the network and the input/output blobs
-static const int INPUT_H = 32;
-static const int INPUT_W = 32;
+static const int INPUT_C = 1;
+static const int INPUT_H = 28;
+static const int INPUT_W = 28;
 static const int NUMBER_CLASSES = 10;
 
 const char *INPUT_NAME = "image";
@@ -80,7 +81,7 @@ ICudaEngine *createEngine(unsigned int maxBatchSize, IBuilder *builder, DataType
   INetworkDefinition *model = builder->createNetworkV2(0);
 
   // Create input tensor of shape { 1, 1, 32, 32 } with name INPUT_BLOB_NAME
-  ITensor *data = model->addInput(INPUT_NAME, datatype, Dims3{1, INPUT_H, INPUT_W});
+  ITensor *data = model->addInput(INPUT_NAME, datatype, Dims3{INPUT_C, INPUT_H, INPUT_W});
   assert(data);
 
   std::map<std::string, Weights> weights = loadWeights("/opt/tensorrt_models/torch/lenet/lenet.wts");
@@ -90,6 +91,7 @@ ICudaEngine *createEngine(unsigned int maxBatchSize, IBuilder *builder, DataType
       model->addConvolutionNd(*data, 6, DimsHW{5, 5}, weights["conv1.weight"], weights["conv1.bias"]);
   assert(conv1);
   conv1->setStrideNd(DimsHW{1, 1});
+  conv1->setPaddingNd(DimsHW{2, 2});
 
   // Add activation layer using the ReLU algorithm.
   IActivationLayer *relu1 = model->addActivation(*conv1->getOutput(0), ActivationType::kRELU);
@@ -193,7 +195,7 @@ void inference(IExecutionContext &context, float *input, float *output, int batc
   const int outputIndex = engine.getBindingIndex(OUTPUT_NAME);
 
   // Create GPU buffers on device
-  CHECK(cudaMalloc(&buffers[inputIndex], batchSize * INPUT_H * INPUT_W * sizeof(float)));
+  CHECK(cudaMalloc(&buffers[inputIndex], batchSize * INPUT_C * INPUT_H * INPUT_W * sizeof(float)));
   CHECK(cudaMalloc(&buffers[outputIndex], batchSize * NUMBER_CLASSES * sizeof(float)));
 
   // Create stream
@@ -202,7 +204,7 @@ void inference(IExecutionContext &context, float *input, float *output, int batc
 
   // DMA input batch data to device, infer on the batch asynchronously, and DMA
   // output back to host
-  CHECK(cudaMemcpyAsync(buffers[inputIndex], input, batchSize * INPUT_H * INPUT_W * sizeof(float),
+  CHECK(cudaMemcpyAsync(buffers[inputIndex], input, batchSize * INPUT_C * INPUT_H * INPUT_W * sizeof(float),
                         cudaMemcpyHostToDevice, stream));
   context.enqueue(batchSize, buffers, stream, nullptr);
   CHECK(cudaMemcpyAsync(output, buffers[outputIndex], batchSize * NUMBER_CLASSES * sizeof(float),
@@ -232,9 +234,6 @@ int main(int argc, char **argv) {
   // create a model using the API directly and serialize it to a stream
   char *trtModelStream{nullptr};
   size_t size{0};
-
-  // Subtract mean from image
-  float data[INPUT_H * INPUT_W];
 
   if (std::string(argv[1]) == "--engine") {
     IHostMemory *modelStream{nullptr};
@@ -268,34 +267,6 @@ int main(int argc, char **argv) {
       assert(trtModelStream);
       file.read(trtModelStream, size);
       file.close();
-
-      printMessage(0);
-      std::cout << "Read image from `" << argv[2] << "`!" << std::endl;
-
-      cv::Mat image = cv::imread(argv[2], cv::IMREAD_GRAYSCALE);
-
-      if (image.empty()) {
-        printMessage(2);
-        std::cerr << "Open image error!" << std::endl;
-        return -2;
-      }
-      printMessage(0);
-      std::cout << "Read image successful! " << std::endl;
-
-      printMessage(0);
-      std::cout << "Adjust image size to 32 * 32." << std::endl;
-      cv::resize(image, image, cv::Size(INPUT_H, INPUT_W));
-      printMessage(0);
-      std::cout << "Adjust image size successful." << std::endl;
-
-      // Print ASCII representation of digit image
-      std::cout << std::endl;
-      printMessage(0);
-      std::cout << "Input:\n" << std::endl;
-      for (int i = 0; i < INPUT_H * INPUT_W; i++) {
-        data[i] = image.data[i];
-        std::cout << (" .:-=+*#%@"[image.data[i] / 26]) << (((i + 1) % INPUT_W) ? "" : "\n");
-      }
     }
   } else
     return -1;
@@ -307,8 +278,39 @@ int main(int argc, char **argv) {
   IExecutionContext *context = engine->createExecutionContext();
   assert(context != nullptr);
 
+  // Load dataset labels
+  std::string label_file = "/opt/tensorrt_models/data/mnist.txt";
+  std::vector<std::string> labels_;
+  std::ifstream labels(label_file.c_str());
+  // CHECK(labels) << "Unable to open labels file " << label_file;
+  std::string line;
+  while (std::getline(labels, line)) labels_.push_back(std::string(line));
+
+  // Read a digit file
+  float data[INPUT_C * INPUT_H * INPUT_W];
+  cv::Mat raw_image, image;
+
+  printMessage(0);
+  std::cout << "Read image from `" << argv[2] << "`!" << std::endl;
+
+  raw_image = cv::imread(argv[2], cv::IMREAD_GRAYSCALE);
+  if (raw_image.empty()) {
+    printMessage(2);
+    std::cerr << "Open image error!" << std::endl;
+    return -2;
+  }
+
+  printMessage(0);
+  std::cout << "Resize image size to 28 * 28." << std::endl;
+  cv::resize(raw_image, image, cv::Size(INPUT_H, INPUT_W));
+
+  for (int i = 0; i < INPUT_H * INPUT_W; i++) data[i] = image.data[i];
+
   // Run inference
   float prob[NUMBER_CLASSES];
+
+  printMessage(0);
+  std::cout << "Inference......" << std::endl;
   for (int i = 0; i < 1000; i++) {
     auto start = std::chrono::system_clock::now();
     inference(*context, data, prob, 1);
@@ -320,18 +322,27 @@ int main(int argc, char **argv) {
   engine->destroy();
   runtime->destroy();
 
-  // Print histogram of the output distribution
-  std::cout << std::endl;
-  printMessage(0);
-  std::cout << "Inference......" << std::endl;
-  unsigned int category;
-  for (unsigned int i = 0; i < NUMBER_CLASSES; i++)
-    if (prob[i] > 0.5) category = i;
+  // Calculate the probability of the top 5 categories
+  std::vector<float> probs;
+  std::vector<std::pair<float, int> > pairs;
+  std::vector<int> results;
 
-  printMessage(0);
-  std::cout << "Result: " << std::endl;
-  std::cout << "\tCategory: " << category << std::endl;
-  std::cout << "\tProbability: " << prob[category] * 100 << "%." << std::endl;
+  for (int n = 0; n < NUMBER_CLASSES; n++) probs.push_back(prob[n]);
+
+  // Sort the categories in the array
+  for (size_t i = 0; i < probs.size(); ++i) pairs.push_back(std::make_pair(probs[i], i));
+  std::partial_sort(pairs.begin(), pairs.begin() + 5, pairs.end(), PairCompare);
+
+  // Formatted output and display
+  std::cout << std::left << std::setw(12) << "--------" << std::right << std::setw(12) << "-----------" << std::endl;
+  std::cout << std::left << std::setw(12) << "Category" << std::right << std::setw(12) << "probability" << std::endl;
+  std::cout << std::left << std::setw(12) << "--------" << std::right << std::setw(12) << "-----------" << std::endl;
+  for (int i = 0; i < 5; ++i) {
+    results.push_back(pairs[i].second);
+    std::cout << std::left << std::setw(12) << labels_[pairs[i].second] << std::right << std::setw(9)
+              << prob[pairs[i].second] * 100 << " %." << std::endl;
+  }
+  std::cout << std::endl;
 
   return 0;
 }
