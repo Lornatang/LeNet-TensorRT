@@ -18,9 +18,10 @@
 
 using namespace nvinfer1;
 
-static Logger gLogger;
+static Logger gLogger; /* NOLINT */
 
-void serialize_lenet_engine(unsigned int max_batch_size, IHostMemory **model_stream) {
+void serialize_lenet_engine(unsigned int max_batch_size,
+                            IHostMemory **model_stream) {
   // Create builder
   report_message(0);
   std::cout << "Creating builder..." << std::endl;
@@ -30,7 +31,8 @@ void serialize_lenet_engine(unsigned int max_batch_size, IHostMemory **model_str
   // Create model to populate the network, then set the outputs and create an engine
   report_message(0);
   std::cout << "Creating LeNet network engine..." << std::endl;
-  ICudaEngine *engine = create_lenet_engine(max_batch_size, builder, DataType::kFLOAT, config);
+  ICudaEngine *engine = create_lenet_engine(max_batch_size, builder,
+                                            DataType::kFLOAT, config);
   assert(engine != nullptr);
 
   // Serialize the engine

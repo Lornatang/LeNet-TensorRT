@@ -14,12 +14,13 @@
  * limitations under the License.
  */
 
-#include <assert.h>
 #include "NvInfer.h"
 #include "common.h"
 #include "cuda_runtime_api.h"
+#include <cassert>
 
 // TensorRT general inference function.
-void inference(nvinfer1::IExecutionContext &context, float *input, float *output, const char *input_name,
-               const char *ouput_name, unsigned int batch_size, unsigned int channel, unsigned int image_height,
+void inference(nvinfer1::IExecutionContext &context, float *input,
+               float *output, const char *input_name, const char *ouput_name,
+               int batch_size, unsigned int channel, unsigned int image_height,
                unsigned int image_width, unsigned int number_classes);

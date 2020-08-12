@@ -22,7 +22,9 @@
 #include "logging.h"
 #include "weight.h"
 
-nvinfer1::ICudaEngine *create_lenet_engine(unsigned int max_batch_size, nvinfer1::IBuilder *builder,
-                                           nvinfer1::DataType data_type, nvinfer1::IBuilderConfig *config);
+nvinfer1::ICudaEngine *create_lenet_engine(int max_batch_size,
+                                           nvinfer1::IBuilder *builder,
+                                           nvinfer1::DataType data_type,
+                                           nvinfer1::IBuilderConfig *config);
 
-#endif  // LENET_MODEL_H
+#endif// LENET_MODEL_H

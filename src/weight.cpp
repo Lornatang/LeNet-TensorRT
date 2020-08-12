@@ -18,7 +18,7 @@
 
 using namespace nvinfer1;
 
-std::map<std::string, Weights> load_weights(const std::string file) {
+std::map<std::string, Weights> load_weights(const std::string &file) {
   std::map<std::string, Weights> weights;
 
   report_message(0);
@@ -42,7 +42,7 @@ std::map<std::string, Weights> load_weights(const std::string file) {
     wt.type = DataType::kFLOAT;
 
     // Load blob
-    uint32_t *val = reinterpret_cast<uint32_t *>(malloc(sizeof(val) * size));
+    auto *val = reinterpret_cast<uint32_t *>(malloc(sizeof(uint32_t) * size));
     for (uint32_t x = 0, y = size; x < y; ++x) input >> std::hex >> val[x];
 
     wt.values = val;
