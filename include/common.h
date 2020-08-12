@@ -61,7 +61,7 @@ std::vector<std::string> load_mnist_labels(const std::string& filename);
 
 // Calculate the probability of the top 5 categories
 void output_inference_results(float *prob, std::vector<std::string> labels,
-                              unsigned int NUMBER_CLASSES);
+                              int number_classes);
 
 // Similar to the processing of dictionary types in Python
 static bool pair_compare(const std::pair<float, int> &lhs,

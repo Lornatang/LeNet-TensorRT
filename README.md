@@ -96,7 +96,6 @@ python train.py data
     ```text
     # ./lenet --image ../examples/0.jpg 
     [INFO](14:15:10): Read from`/opt/tensorrt_models/torch/lenet/lenet.engine` inference engine.
-    [WARNING]: Current optimization profile is: 0. Please ensure there are no enqueued operations pending in this context prior to switching profiles
     [INFO](14:15:11): Read image from `/home/unix/code/LeNet-TensorRT/examples/0.jpg`!
     [INFO](14:15:11): Resize image size to 28 * 28.
     [INFO](14:15:11): Inference......
