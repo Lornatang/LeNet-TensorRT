@@ -18,8 +18,8 @@
 #define LENET_ENGINE_H
 
 #include "NvInfer.h"
+#include "lenet_network.h"
 #include "logging.h"
-#include "model.h"
 
 void serialize_lenet_engine(unsigned int max_batch_size, nvinfer1::IHostMemory **model_stream);
 

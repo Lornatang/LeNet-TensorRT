@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-#include "../include/model.h"
+#include "../include/lenet_network.h"
 
 using namespace nvinfer1;
 using namespace std;

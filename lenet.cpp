@@ -16,10 +16,10 @@
 
 #include <unistd.h>
 #include "include/common.h"
-#include "include/engine.h"
 #include "include/inference.h"
+#include "include/lenet_engine.h"
+#include "include/lenet_network.h"
 #include "include/logging.h"
-#include "include/model.h"
 #include "include/weight.h"
 #include "opencv2/opencv.hpp"
 

@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-#include "../include/engine.h"
+#include "../include/lenet_engine.h"
 
 using namespace nvinfer1;
 
