@@ -17,8 +17,11 @@
 #include "../include/model.h"
 
 using namespace nvinfer1;
+using namespace std;
 
 static Logger gLogger;
+
+static const char *WEIGHTS = "/opt/tensorrt_models/torch/lenet/lenet.wts";
 
 // Custom create LeNet neural network engine
 ICudaEngine *create_lenet_engine(unsigned int max_batch_size, IBuilder *builder, DataType data_type,
@@ -29,7 +32,7 @@ ICudaEngine *create_lenet_engine(unsigned int max_batch_size, IBuilder *builder,
   ITensor *data = model->addInput("input", data_type, Dims3{1, 28, 28});
   assert(data);
 
-  std::map<std::string, Weights> weights = load_weights("/opt/tensorrt_models/torch/lenet/lenet.wts");
+  std::map<std::string, Weights> weights = load_weights(WEIGHTS);
 
   // Add convolution layer with 6 outputs and a 5x5 filter.
   IConvolutionLayer *conv1 =
