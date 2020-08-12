@@ -14,6 +14,7 @@
  * limitations under the License.
  */
 
+#include <unistd.h>
 #include "include/common.h"
 #include "include/engine.h"
 #include "include/inference.h"
@@ -32,6 +33,7 @@ static const unsigned int NUMBER_CLASSES = 10;
 const char *INPUT_NAME = "input";
 const char *OUTPUT_NAME = "label";
 const char *LABEL_FILE = "/opt/tensorrt_models/data/mnist.txt";
+const char *ENGINE_FILE = "/opt/tensorrt_models/torch/lenet/lenet.engine";
 
 using namespace nvinfer1;
 
@@ -42,8 +44,8 @@ int main(int argc, char **argv) {
     report_message(2);
     std::cerr << "Invalid arguments!" << std::endl;
     std::cout << "Usage: " << std::endl;
-    std::cout << "  ./lenet --engine  // Generate TensorRT inference model." << std::endl;
-    std::cout << "  ./lenet --image ../examples/0.jpg  // Reasoning on the picture." << std::endl;
+    std::cout << "  lenet --engine  // Generate TensorRT inference model." << std::endl;
+    std::cout << "  lenet --image ../examples/0.jpg  // Reasoning on the picture." << std::endl;
     return -1;
   }
 
@@ -58,7 +60,7 @@ int main(int argc, char **argv) {
     serialize_lenet_engine(1, &model_stream);
     assert(model_stream != nullptr);
 
-    std::ofstream engine("/opt/tensorrt_models/torch/lenet/lenet.engine");
+    std::ofstream engine(ENGINE_FILE);
     if (!engine) {
       report_message(2);
       std::cerr << "Could not open plan output file" << std::endl;
@@ -69,14 +71,14 @@ int main(int argc, char **argv) {
     engine.write(reinterpret_cast<const char *>(model_stream->data()), model_stream->size());
 
     report_message(0);
-    std::cout << "The inference engine is saved to `/opt/tensorrt_models/torch/lenet/lenet.engine`!" << std::endl;
+    std::cout << "The inference engine is saved to `" << ENGINE_FILE << "`!" << std::endl;
 
     model_stream->destroy();
     return 1;
   } else if (std::string(argv[1]) == "--image") {
     report_message(0);
-    std::cout << "Read from`/opt/tensorrt_models/torch/lenet/lenet.engine` inference engine." << std::endl;
-    std::ifstream file("/opt/tensorrt_models/torch/lenet/lenet.engine", std::ios::binary);
+    std::cout << "Read from`" << ENGINE_FILE << "` inference engine." << std::endl;
+    std::ifstream file(ENGINE_FILE, std::ios::binary);
     if (file.good()) {
       file.seekg(0, file.end);
       size = file.tellg();
@@ -88,6 +90,11 @@ int main(int argc, char **argv) {
     }
   } else
     return -1;
+
+  // Get abs file
+  char *abs_path, *filename;
+  filename = realpath(argv[2], abs_path);
+  assert(filename != nullptr && "File does not exist");
 
   IRuntime *runtime = createInferRuntime(gLogger);
   assert(runtime != nullptr);
@@ -101,9 +108,9 @@ int main(int argc, char **argv) {
   cv::Mat raw_image, image;
 
   report_message(0);
-  std::cout << "Read image from `" << argv[2] << "`!" << std::endl;
+  std::cout << "Read image from `" << filename << "`!" << std::endl;
 
-  raw_image = cv::imread(argv[2], cv::IMREAD_GRAYSCALE);
+  raw_image = cv::imread(filename, cv::IMREAD_GRAYSCALE);
   if (raw_image.empty()) {
     report_message(2);
     std::cerr << "Open image error!" << std::endl;
