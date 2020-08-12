@@ -95,54 +95,22 @@ python train.py data
 
     ```text
     # ./lenet --image ../examples/0.jpg 
-    [INFO(9:18:9)]: Read from`/opt/tensorrt_models/torch/lenet/lenet.engine` inference engine.
-    [INFO(9:18:9)]: Read image from `../examples/0.jpg`!
-    [INFO(9:18:9)]: Read image successful! 
-    [INFO(9:18:9)]: Adjust image size to 32 * 32.
-    [INFO(9:18:9)]: Adjust image size successful.
-
-    [INFO(9:18:9)]: Input:
-
-                                    
-                                    
-                                    
-                                    
-                    ::::          
-                    -+**+:         
-                    :#@@@@*         
-                :%@@@@@#:        
-                -%@@@#++#%=       
-                :+%@@%@%+=#@*.      
-                -#@@**%#=-=%*.      
-            -*@@#--+=: :##:      
-            :*%@#= .:.  .#%=.     
-            :+%%*=:      .#@*.     
-            +%#=.        .#@*:     
-            :%%=.         .#@*:     
-            *@*:          .#@*:     
-        :%@+:          .#@+.     
-        -@#-.         .=%#-      
-        -@*:         .=##=.      
-        -@*:        .=##-.       
-        -@*.      .-+##-         
-        -@#-    ..=#%#-          
-        -@@*-::=*#%@#=.          
-        -@@@%#%@@@%+:            
-        .#@@@@@@#*:.             
-            :+****+-.               
-            .::::.                 
-                                    
-                                    
-                                    
-                                    
-
-    [INFO(9:18:10)]: Inference......
-    [INFO(9:18:10)]: Result: 
-        Category: 0
-        Probability: 100%.
-
+    [INFO](14:15:10): Read from`/opt/tensorrt_models/torch/lenet/lenet.engine` inference engine.
+    [WARNING]: Current optimization profile is: 0. Please ensure there are no enqueued operations pending in this context prior to switching profiles
+    [INFO](14:15:11): Read image from `/home/unix/code/LeNet-TensorRT/examples/0.jpg`!
+    [INFO](14:15:11): Resize image size to 28 * 28.
+    [INFO](14:15:11): Inference......
+--------             -----------
+    Category             probability
+--------             -----------
+    Zero                      100 %.
+    One                         0 %.
+    Three                       0 %.
+    Four                        0 %.
+    Two                         0 %.
+    
     ```
-  
+    
 4. Install into the system directory(optional)
 
     ```bash
