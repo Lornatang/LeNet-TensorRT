@@ -91,7 +91,7 @@ python train.py data
     ./lenet --image ../examples/0.jpg  // Inference on the picture.
     ```
 
-3. Verify that the sample ran successfully. If the sample runs successfully you should see output similar to the following; ASCII rendering of the input image with digit 0:
+3. Verify that the sample ran successfully. If the sample runs successfully you should see output similar to the following'
 
     ```text
     # ./lenet --image ../examples/0.jpg 
@@ -100,9 +100,9 @@ python train.py data
     [INFO](14:15:11): Read image from `/home/unix/code/LeNet-TensorRT/examples/0.jpg`!
     [INFO](14:15:11): Resize image size to 28 * 28.
     [INFO](14:15:11): Inference......
---------             -----------
+    --------             -----------
     Category             probability
---------             -----------
+    --------             -----------
     Zero                      100 %.
     One                         0 %.
     Three                       0 %.
