@@ -14,11 +14,15 @@
  * limitations under the License.
  */
 
-#ifndef LENET_COMMON_H
-#define LENET_COMMON_H
+#ifndef COMMON_H
+#define COMMON_H
 
+#include <algorithm>
 #include <ctime>
+#include <fstream>
+#include <iomanip>
 #include <iostream>
+#include <vector>
 #include "NvInfer.h"
 
 #define CHECK(status)                       \
@@ -40,61 +44,15 @@ constexpr long long int operator"" _GiB(long long unsigned int val) { return val
 constexpr long long int operator"" _MiB(long long unsigned int val) { return val * (1 << 20); }
 constexpr long long int operator"" _KiB(long long unsigned int val) { return val * (1 << 10); }
 
-// Logger for TensorRT info/warning/errors
-class Logger : public nvinfer1::ILogger {
- public:
-  Logger() : Logger(Severity::kWARNING) {}
+// Load MNIST dataset label
+std::vector<std::string> load_mnist_labels(std::string filename);
 
-  Logger(Severity severity) : reportableSeverity(severity) {}
+// Calculate the probability of the top 5 categories
+void output_inference_results(float* prob, std::vector<std::string> labels, const unsigned int NUMBER_CLASSES);
 
-  void log(Severity severity, const char* msg) override {
-    // suppress messages with severity enum value greater than the reportable
-    if (severity > reportableSeverity) return;
-
-    switch (severity) {
-      case Severity::kINTERNAL_ERROR:
-        std::cerr << "[INTERNAL_ERROR]: ";
-        break;
-      case Severity::kERROR:
-        std::cerr << "[ERROR]: ";
-        break;
-      case Severity::kWARNING:
-        std::cerr << "[WARNING]: ";
-        break;
-      case Severity::kINFO:
-        std::cout << "[INFO]: ";
-        break;
-      default:
-        std::cout << "[UNKNOWN]: ";
-        break;
-    }
-    std::cout << msg << std::endl;
-  }
-
-  Severity reportableSeverity{Severity::kWARNING};
-};
-
-static bool PairCompare(const std::pair<float, int>& lhs, const std::pair<float, int>& rhs) {
+// Similar to the processing of dictionary types in Python
+static bool pair_compare(const std::pair<float, int>& lhs, const std::pair<float, int>& rhs) {
   return lhs.first > rhs.first;
 }
 
-void printMessage(unsigned int LEVEL) {
-  std::time_t now = time(0);
-  std::tm* ltm = localtime(&now);
-  switch (LEVEL) {
-    case 0:
-      std::cout << "[INFO(" << ltm->tm_hour << ":" << ltm->tm_min << ":" << ltm->tm_sec << ")]: ";
-      break;
-    case 1:
-      std::cout << "[WARNING(" << ltm->tm_hour << ":" << ltm->tm_min << ":" << ltm->tm_sec << ")]: ";
-      break;
-    case 2:
-      std::cerr << "[ERROR(" << ltm->tm_hour << ":" << ltm->tm_min << ":" << ltm->tm_sec << ")]: ";
-      break;
-    default:
-      std::cout << "[INFO(" << ltm->tm_hour << ":" << ltm->tm_min << ":" << ltm->tm_sec << ")]: ";
-      break;
-  }
-}
-
-#endif  // LENET_COMMON_H
+#endif  // COMMON_H
