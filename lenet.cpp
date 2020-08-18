@@ -14,12 +14,12 @@
  * limitations under the License.
  */
 
-#include "include/common.h"
-#include "include/inference.h"
+#include "tensorrt/common.h"
 #include "include/lenet_engine.h"
-#include "include/logging.h"
-#include "include/weight.h"
+#include "tensorrt/inference.h"
+#include "tensorrt/logging.h"
 #include "opencv2/opencv.hpp"
+#include "tensorrt/weight.h"
 #include <unistd.h>
 
 // stuff we know about the network and the input/output blobs
@@ -43,11 +43,8 @@ int main(int argc, char **argv) {
     report_message(2);
     std::cerr << "Invalid arguments!" << std::endl;
     std::cout << "Usage: " << std::endl;
-    std::cout << "  lenet --engine  // Generate TensorRT inference model."
-              << std::endl;
-    std::cout
-            << "  lenet --image ../examples/0.jpg  // Reasoning on the picture."
-            << std::endl;
+    std::cout << "  lenet --engine  // Generate TensorRT inference model." << std::endl;
+    std::cout << "  lenet --image ../examples/0.jpg  // Reasoning on the picture." << std::endl;
     return -1;
   }
 
@@ -59,7 +56,7 @@ int main(int argc, char **argv) {
     IHostMemory *model_stream{nullptr};
     report_message(0);
     std::cout << "Start serialize LeNet network engine." << std::endl;
-    serialize_lenet_engine(1, &model_stream);
+    create_lenet_engine(1, &model_stream);
     assert(model_stream != nullptr);
 
     std::ofstream engine(ENGINE_FILE);
@@ -72,19 +69,16 @@ int main(int argc, char **argv) {
                 << std::endl;
       return -1;
     }
-    engine.write(reinterpret_cast<const char *>(model_stream->data()),
-                 model_stream->size());
+    engine.write(reinterpret_cast<const char *>(model_stream->data()), model_stream->size());
 
     report_message(0);
-    std::cout << "The inference engine is saved to `" << ENGINE_FILE << "`!"
-              << std::endl;
+    std::cout << "The inference engine is saved to `" << ENGINE_FILE << "`!" << std::endl;
 
     model_stream->destroy();
     return 1;
   } else if (std::string(argv[1]) == "--image") {
     report_message(0);
-    std::cout << "Read from`" << ENGINE_FILE << "` inference engine."
-              << std::endl;
+    std::cout << "Read from`" << ENGINE_FILE << "` inference engine." << std::endl;
     std::ifstream file(ENGINE_FILE, std::ios::binary);
     if (file.good()) {
       file.seekg(0, std::ifstream::end);
@@ -105,8 +99,7 @@ int main(int argc, char **argv) {
 
   IRuntime *runtime = createInferRuntime(gLogger);
   assert(runtime != nullptr);
-  ICudaEngine *engine =
-          runtime->deserializeCudaEngine(trtModelStream, size, nullptr);
+  ICudaEngine *engine = runtime->deserializeCudaEngine(trtModelStream, size, nullptr);
   assert(engine != nullptr);
   IExecutionContext *context = engine->createExecutionContext();
   assert(context != nullptr);
@@ -138,8 +131,7 @@ int main(int argc, char **argv) {
   std::cout << "Inference......" << std::endl;
   for (int i = 0; i < 1000; i++) {
     auto start = std::chrono::system_clock::now();
-    inference(*context, data, prob, INPUT_NAME, OUTPUT_NAME, BATCH_SIZE,
-              INPUT_C, INPUT_H, INPUT_W, NUMBER_CLASSES);
+    inference(*context, data, prob, INPUT_NAME, OUTPUT_NAME, BATCH_SIZE, INPUT_C, INPUT_H, INPUT_W, NUMBER_CLASSES);
     auto end = std::chrono::system_clock::now();
   }
 

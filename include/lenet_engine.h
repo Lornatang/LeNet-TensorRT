@@ -18,10 +18,13 @@
 #define LENET_ENGINE_H
 
 #include "NvInfer.h"
-#include "lenet_network.h"
-#include "logging.h"
+#include "tensorrt/common.h"
+#include "tensorrt/logging.h"
+#include "tensorrt/weight.h"
 
-void serialize_lenet_engine(unsigned int max_batch_size,
-                            nvinfer1::IHostMemory **model_stream);
+nvinfer1::ICudaEngine *create_lenet_network(int max_batch_size, nvinfer1::IBuilder *builder,
+                                            nvinfer1::DataType data_type, nvinfer1::IBuilderConfig *config);
+
+void create_lenet_engine(int max_batch_size, nvinfer1::IHostMemory **model_stream);
 
 #endif// LENET_ENGINE_H

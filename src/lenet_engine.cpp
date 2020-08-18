@@ -14,16 +14,18 @@
  * limitations under the License.
  */
 
-#include "../include/lenet_network.h"
+#include "../include/lenet_engine.h"
 
 using namespace nvinfer1;
 using namespace std;
 
+static Logger gLogger; /* NOLINT */
+
+
 static const char *WEIGHTS = "/opt/tensorrt_models/torch/lenet/lenet.wts";
 
-// Custom create LeNet neural network engine
-ICudaEngine *create_lenet_engine(int max_batch_size, IBuilder *builder,
-                                 DataType data_type, IBuilderConfig *config) {
+// Custom create LeNet neural network
+ICudaEngine *create_lenet_network(int max_batch_size, IBuilder *builder, DataType data_type, IBuilderConfig *config) {
   INetworkDefinition *model = builder->createNetworkV2(0);
 
   // Create input tensor of shape {1, 1, 28, 28} with name INPUT_NAME
@@ -33,66 +35,57 @@ ICudaEngine *create_lenet_engine(int max_batch_size, IBuilder *builder,
   std::map<std::string, Weights> weights = load_weights(WEIGHTS);
 
   // Add convolution layer with 6 outputs and a 5x5 filter.
-  IConvolutionLayer *conv1 = model->addConvolutionNd(*data, 6, DimsHW{5, 5},
-                                                     weights["conv1.weight"],
-                                                     weights["conv1.bias"]);
+  IConvolutionLayer *conv1 =
+          model->addConvolutionNd(*data, 6, DimsHW{5, 5}, weights["conv1.weight"], weights["conv1.bias"]);
   assert(conv1);
   conv1->setStrideNd(DimsHW{1, 1});
   conv1->setPaddingNd(DimsHW{2, 2});
 
   // Add activation layer using the ReLU algorithm.
-  IActivationLayer *relu1 =
-          model->addActivation(*conv1->getOutput(0), ActivationType::kRELU);
+  IActivationLayer *relu1 = model->addActivation(*conv1->getOutput(0), ActivationType::kRELU);
   assert(relu1);
 
   // Add max pooling layer with stride of 2x2 and kernel size of 2x2.
-  IPoolingLayer *pool1 = model->addPoolingNd(
-          *relu1->getOutput(0), PoolingType::kAVERAGE, DimsHW{2, 2});
+  IPoolingLayer *pool1 = model->addPoolingNd(*relu1->getOutput(0), PoolingType::kAVERAGE, DimsHW{2, 2});
   assert(pool1);
   pool1->setStrideNd(DimsHW{2, 2});
 
   // Add convolution layer with 6 outputs and a 5x5 filter.
-  IConvolutionLayer *conv2 = model->addConvolutionNd(
-          *pool1->getOutput(0), 16, DimsHW{5, 5}, weights["conv2.weight"],
-          weights["conv2.bias"]);
+  IConvolutionLayer *conv2 = model->addConvolutionNd(*pool1->getOutput(0), 16, DimsHW{5, 5}, weights["conv2.weight"],
+                                                     weights["conv2.bias"]);
   assert(conv2);
   conv2->setStrideNd(DimsHW{1, 1});
 
   // Add activation layer using the ReLU algorithm.
-  IActivationLayer *relu2 =
-          model->addActivation(*conv2->getOutput(0), ActivationType::kRELU);
+  IActivationLayer *relu2 = model->addActivation(*conv2->getOutput(0), ActivationType::kRELU);
   assert(relu2);
 
   // Add max pooling layer with stride of 2x2 and kernel size of 2x2.
-  IPoolingLayer *pool2 = model->addPoolingNd(
-          *relu2->getOutput(0), PoolingType::kAVERAGE, DimsHW{2, 2});
+  IPoolingLayer *pool2 = model->addPoolingNd(*relu2->getOutput(0), PoolingType::kAVERAGE, DimsHW{2, 2});
   assert(pool2);
   pool2->setStrideNd(DimsHW{2, 2});
 
   // Add fully connected layer with 400 outputs.
   IFullyConnectedLayer *fc1 =
-          model->addFullyConnected(*pool2->getOutput(0), 120,
-                                   weights["fc1.weight"], weights["fc1.bias"]);
+          model->addFullyConnected(*pool2->getOutput(0), 120, weights["fc1.weight"], weights["fc1.bias"]);
   assert(fc1);
 
   // Add activation layer using the ReLU algorithm.
-  IActivationLayer *relu3 =
-          model->addActivation(*fc1->getOutput(0), ActivationType::kRELU);
+  IActivationLayer *relu3 = model->addActivation(*fc1->getOutput(0), ActivationType::kRELU);
   assert(relu3);
 
   // Add fully connected layer with 84 outputs.
-  IFullyConnectedLayer *fc2 = model->addFullyConnected(
-          *relu3->getOutput(0), 84, weights["fc2.weight"], weights["fc2.bias"]);
+  IFullyConnectedLayer *fc2 =
+          model->addFullyConnected(*relu3->getOutput(0), 84, weights["fc2.weight"], weights["fc2.bias"]);
   assert(fc2);
 
   // Add activation layer using the ReLU algorithm.
-  IActivationLayer *relu4 =
-          model->addActivation(*fc2->getOutput(0), ActivationType::kRELU);
+  IActivationLayer *relu4 = model->addActivation(*fc2->getOutput(0), ActivationType::kRELU);
   assert(relu4);
 
   // Add fully connected layer with 10 outputs.
-  IFullyConnectedLayer *fc3 = model->addFullyConnected(
-          *relu4->getOutput(0), 10, weights["fc3.weight"], weights["fc3.bias"]);
+  IFullyConnectedLayer *fc3 =
+          model->addFullyConnected(*relu4->getOutput(0), 10, weights["fc3.weight"], weights["fc3.bias"]);
   assert(fc3);
 
   // Add activation layer using the ReLU algorithm.
@@ -114,4 +107,29 @@ ICudaEngine *create_lenet_engine(int max_batch_size, IBuilder *builder,
   for (auto &memory : weights) free((void *) (memory.second.values));
 
   return engine;
+}
+
+void create_lenet_engine(int max_batch_size, IHostMemory **model_stream) {
+  // Create builder
+  report_message(0);
+  std::cout << "Creating builder..." << std::endl;
+  IBuilder *builder = createInferBuilder(gLogger);
+  IBuilderConfig *config = builder->createBuilderConfig();
+
+  // Create model to populate the network, then set the outputs and create an engine
+  report_message(0);
+  std::cout << "Creating LeNet network engine..." << std::endl;
+  ICudaEngine *engine = create_lenet_network(max_batch_size, builder, DataType::kFLOAT, config);
+  assert(engine != nullptr);
+
+  // Serialize the engine
+  report_message(0);
+  std::cout << "Serialize model engine..." << std::endl;
+  (*model_stream) = engine->serialize();
+  report_message(0);
+  std::cout << "Create LeNet engine successful." << std::endl;
+
+  // Close everything down
+  engine->destroy();
+  builder->destroy();
 }
